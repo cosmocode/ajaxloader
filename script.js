@@ -20,7 +20,7 @@ var ajax_loader = {
 
     start: function () {
         var forms = getElementsByClass('ajax_loader', document, 'form');
-        if (forms.length > 0) sack_form(forms[0], ajax_loader.start);
+        if (forms.length > 0) ajax_loader.sack_form(forms[0], ajax_loader.start);
     },
 
     Loader: function (plugin, data) {
