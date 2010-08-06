@@ -1,6 +1,9 @@
 var ajax_loader = {
 
-    sack_form: function (form, func) {
+    sack_form: function (form, func, replace) {
+        if (typeof replace === undefined) {
+            replace = true;
+        }
         var ajax = new sack(DOKU_BASE + 'lib/exe/ajax.php');
         function serializeByTag(tag) {
             var inps = form.getElementsByTagName(tag);
@@ -12,7 +15,9 @@ var ajax_loader = {
         }
         serializeByTag('input');
         serializeByTag('textarea');
-        ajax.elementObj = form.parentNode;
+        if (replace) {
+            ajax.elementObj = form.parentNode;
+        }
         ajax.afterCompletion = func;
         ajax.runAJAX();
         return false;
