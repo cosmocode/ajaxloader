@@ -1,26 +1,36 @@
 var ajax_loader = {
 
-    sack_form: function (form, func, replace) {
-        if (typeof replace === undefined) {
-            replace = true;
-        }
+    sack_new_form: function(form, plugin, func) {
+        var ajax = this.pre_sack(form, func);
+        ajax.setVar('call', 'ajax_loader_' + plugin);
+        ajax.runAJAX();
+        return ajax;
+    },
+
+    sack_form: function (form, func) {
+        var ajax = this.pre_sack(form, func);
+        ajax.elementObj = form.parentNode;
+        ajax.runAJAX();
+        return false;
+    },
+
+    pre_sack: function (form, func) {
         var ajax = new sack(DOKU_BASE + 'lib/exe/ajax.php');
         function serializeByTag(tag) {
             var inps = form.getElementsByTagName(tag);
             for (var inp in inps) {
                 if (inps[inp].name) {
-                    ajax.setVar(inps[inp].name, inps[inp].value);
+                    var name = (inps[inp].name.match(/^ajax_loader_data/)) ?
+                               inps[inp].name :
+                               ('ajax_loader_data[' + inps[inp].name + ']');
+                    ajax.setVar(name, inps[inp].value);
                 }
             }
         }
         serializeByTag('input');
         serializeByTag('textarea');
-        if (replace) {
-            ajax.elementObj = form.parentNode;
-        }
         ajax.afterCompletion = func;
-        ajax.runAJAX();
-        return false;
+        return ajax;
     },
 
     start: function () {
