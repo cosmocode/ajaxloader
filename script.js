@@ -20,7 +20,8 @@ var ajax_loader = {
             var inps = form.getElementsByTagName(tag);
             for (var inp in inps) {
                 if (inps[inp].name) {
-                    var name = (inps[inp].name.match(/^ajax_loader_data/)) ?
+                    var name = (inps[inp].name.match(/^ajax_loader_data/) ||
+                               inps[inp].name === 'call') ?
                                inps[inp].name :
                                ('ajax_loader_data[' + inps[inp].name + ']');
                     ajax.setVar(name, inps[inp].value);
