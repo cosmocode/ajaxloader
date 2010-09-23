@@ -1,59 +1,53 @@
-var ajax_loader = {
+function doku_ajax(call, params) {
+    var ajax = new sack(DOKU_BASE + 'lib/plugins/ajaxloader/ajax.php');
+    if (!params) {
+        params = {};
+    } else if (params.tagName && params.tagName.toLowerCase() === 'form') {
+        params = serialize_form(params);
+    }
+    if (call) {
+        params.call = call;
+    }
+    var oldrunAJAX = ajax.runAJAX;
 
-    sack_new_form: function(form, plugin, func) {
-        var ajax = this.pre_sack(form, func);
-        ajax.setVar('call', 'ajax_loader_' + plugin);
-        ajax.runAJAX();
-        return ajax;
-    },
-
-    sack_form: function (form, func) {
-        var ajax = this.pre_sack(form, func);
-        ajax.elementObj = form.parentNode;
-        ajax.runAJAX();
-        return false;
-    },
-
-    pre_sack: function (form, func) {
-        var ajax = new sack(DOKU_BASE + 'lib/exe/ajax.php');
-        function serializeByTag(tag) {
-            var inps = form.getElementsByTagName(tag);
-            for (var inp in inps) {
-                if (inps[inp].name) {
-                    var name = (inps[inp].name.match(/^ajax_loader_data/) ||
-                               inps[inp].name === 'call') ?
-                               inps[inp].name :
-                               ('ajax_loader_data[' + inps[inp].name + ']');
-                    ajax.setVar(name, inps[inp].value);
+    /* Always apply given params before making a call. sack.runAJAX resets
+       the param string. */
+    ajax.runAJAX = function(more_params) {
+        if (typeof more_params === 'object') {
+            for (val in more_params) {
+                if (more_params.hasOwnProperty(val)) {
+                    params[val] = more_params[val];
                 }
             }
+            more_params = '';
+        } else if (this.URLString.length > 0) {
+            var strcache = this.URLString;
+            this.URLString = '';
         }
-        serializeByTag('input');
-        serializeByTag('textarea');
-        ajax.afterCompletion = func;
-        return ajax;
-    },
-
-    start: function () {
-        var forms = getElementsByClass('ajax_loader', document, 'form');
-        if (forms.length > 0) ajax_loader.sack_form(forms[0], ajax_loader.start);
-    },
-
-    Loader: function (plugin, data) {
-        var form = document.createElement('form');
-        form.className = 'ajax_loader';
-        form.addHidden = function (name, value) {
-            this.innerHTML += '<input type="hidden" name="' + name + '" value="' + value +
-                              '" />';
-        };
-        form.addHidden('call', 'ajax_loader_' + plugin);
-        for (var k in data) {
-            form.addHidden('ajax_loader_data[' + k + ']', data[k]);
+        for (val in params) {
+            if (params.hasOwnProperty(val)) {
+                ajax.setVar(val, params[val]);
+            }
         }
-        return form;
+        if (typeof strcache !== undefined) {
+            this.URLString += '&' + strcache;
+        }
+        return oldrunAJAX.call(this, more_params);
     }
+    return ajax;
+}
 
-
-};
-
-addInitEvent(ajax_loader.start);
+function serialize_form(form) {
+    var data = {};
+    var inps = form.elements;
+    // FIXME: Perform more extensive form processing:
+    //  http://www.w3.org/TR/html401/interact/forms.html#h-17.13
+    for (var i = 0 ; i < inps.length ; ++i) {
+        var name = inps[i].name || inps[i].id;
+        if (!name) {
+            continue;
+        }
+        data[name] = inps[i].value;
+    }
+    return data;
+}
