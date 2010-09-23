@@ -16,6 +16,7 @@ class action_plugin_ajaxloader extends DokuWiki_Action_Plugin {
     }
 
     function ajax(&$event, $param) {
+        $call = $event->data;
         include 'common.php';
     }
 }

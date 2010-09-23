@@ -19,6 +19,14 @@ session_write_close();
 
 header('Content-Type: text/html; charset=utf-8');
 
+if(isset($_POST['call']))
+  $call = $_POST['call'];
+else if(isset($_GET['call']))
+  $call = $_GET['call'];
+else
+  exit;
+
+
 include 'common.php';
 
 //Setup VIM: ex: et ts=2 enc=utf-8 :
