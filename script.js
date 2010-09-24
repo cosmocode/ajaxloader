@@ -33,7 +33,7 @@ function doku_ajax(call, params) {
             this.URLString += '&' + strcache;
         }
         return oldrunAJAX.call(this, more_params);
-    }
+    };
     return ajax;
 }
 
