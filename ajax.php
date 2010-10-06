@@ -29,4 +29,7 @@ else
 
 include 'common.php';
 
+# Fallback if everything fails
+include DOKU_INC.'lib/exe/ajax.php';
+
 //Setup VIM: ex: et ts=2 enc=utf-8 :
